@@ -1,0 +1,91 @@
+<div class="max-w-7xl mx-auto bg-white dark:bg-neutral-900 rounded-lg shadow flex flex-col h-[100vh]">
+
+  <!-- Comments List -->
+  <div class="flex-1 overflow-y-auto p-4 space-y-4">
+    <!-- Loader -->
+    <div *ngIf="loading" class="text-center py-6 text-gray-500">
+      <i class="fas fa-spinner fa-spin text-2xl text-blue-500"></i>
+      <p>Loading comments...</p>
+    </div>
+
+    <!-- Header -->
+    <div class="bg-white dark:bg-neutral-800 rounded-xl shadow p-4 mb-6 flex items-center justify-between">
+      <h2 class="text-xl font-bold dark:text-white">Comments</h2>
+      <button [routerLink]="['/user_profile', authorId]"
+              class="px-3 py-1 rounded-full bg-gray-200 dark:bg-neutral-700 dark:text-neutral-300 text-sm hover:bg-gray-300 dark:hover:bg-neutral-600">
+        Back
+      </button>
+    </div>
+
+    <!-- Comments -->
+    <div *ngIf="!loading && comments.length > 0">
+      <div *ngFor="let comment of comments" [ngClass]="{ 'justify-end flex-row-reverse text-right': userId == comment.userId._id }"
+          class="flex items-start space-x-3 relative group mt-3">
+
+        <!-- Profile Image -->
+        <img [src]="comment.userId?.profileImage" [routerLink]="['/user_profile', comment.userId._id]"
+            class="w-9 h-9 rounded-full object-cover mt-1 cursor-pointer mx-3" />
+
+          @if(userId == comment.userId._id){
+            <!-- Comment Bubble -->
+            <div class="flex-1">
+              <div class="bg-blue-200 dark:bg-blue-600 px-3 py-2 rounded-2xl inline-block max-w-[85%]">
+                <p class="font-semibold text-sm text-gray-800 dark:text-white cursor-pointer pb-2" [routerLink]="['/user_profile', comment.userId._id]">
+                  {{ comment.userId?.name }}
+                </p>
+                <p class="text-gray-700 dark:text-neutral-300 text-sm">
+                  {{ comment.text }}
+                </p>
+              </div>
+            </div>
+          }
+          @else {
+            <!-- Comment Bubble -->
+            <div class="flex-1">
+              <div class="bg-gray-100 dark:bg-neutral-700 px-3 py-2 rounded-2xl inline-block max-w-[85%]">
+                <p class="font-semibold text-sm text-gray-800 dark:text-white cursor-pointer pb-2" [routerLink]="['/user_profile', comment.userId._id]">
+                  {{ comment.userId?.name }}
+                </p>
+                <p class="text-gray-700 dark:text-neutral-300 text-sm">
+                  {{ comment.text }}
+                </p>
+              </div>
+            </div>
+          }
+
+        <!-- Options Menu (show on click) -->
+        <div class="relative ml-2">
+          <i class="fa-solid fa-ellipsis-h text-gray-400 cursor-pointer hover:text-gray-600"
+             (click)="comment['showMenu'] = !comment['showMenu']"></i>
+          <div *ngIf="comment['showMenu']"
+               class="absolute right-0 mt-2 w-32 bg-white dark:bg-neutral-700 rounded-lg shadow-lg py-2 text-sm z-50">
+            <button (click)="deleteComment(comment._id)"
+                    class="block w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-neutral-600 text-red-500">
+              <i class="fa-solid fa-trash mr-2"></i> Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- No Comments -->
+    <div *ngIf="!loading && comments.length === 0"
+         class="text-gray-500 text-center py-6">
+        No comments yet. Be the first to comment!
+    </div>
+  </div>
+
+  <!-- Fixed Add Comment Bar -->
+  <div class="border-t dark:border-neutral-700 p-3 bg-gray-50 dark:bg-neutral-800 sticky bottom-0">
+    <div class="flex items-center space-x-2">
+      <input [(ngModel)]="newComment"
+             type="text"
+             placeholder="Write a comment..."
+             class="flex-1 bg-gray-100 dark:bg-neutral-700 text-sm text-gray-800 dark:text-gray-200 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      <button (click)="addComment()"
+              class="bg-blue-600 text-white px-4 py-2 rounded-full text-sm hover:bg-blue-700">
+        Comment
+      </button>
+    </div>
+  </div>
+</div>

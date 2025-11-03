@@ -1,0 +1,127 @@
+<div class="min-h-screen bg-gray-100 dark:bg-neutral-900 py-6 px-3 md:px-24">
+
+  <!-- Create Post -->
+  <div class="bg-white dark:bg-neutral-800 rounded-xl shadow px-4 py-10 mb-6">
+    <div class="flex items-center space-x-3 mb-8">
+      <img [src]="profile?.profileImage"
+          class="w-10 h-10 rounded-full object-cover">
+      <input type="text"
+            placeholder="What's on your mind, {{ profile?.name }}?"
+            class="flex-1 px-4 py-2 rounded-full bg-gray-100 dark:bg-neutral-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            (click)="goToAddPost()">
+    </div>
+    <div class="flex justify-between text-gray-600 dark:text-gray-300 text-sm border-t pt-8">
+      <button class="flex items-center gap-2 hover:text-green-600 transition" (click)="goToAddPost()">
+        <i class="fa-solid fa-image"></i><span class="hidden md:block">Photo/Video</span>
+      </button>
+      <button class="flex items-center gap-2 hover:text-indigo-600 transition">
+        <i class="fa-solid fa-user-tag"></i> <span class="hidden md:block">Tag Friends</span>
+      </button>
+      <button class="flex items-center gap-2 hover:text-orange-600 transition">
+        <i class="fa-solid fa-face-smile"></i><span class="hidden md:block">Feeling/Activity</span>
+      </button>
+    </div>
+  </div>
+
+
+  <!-- Loader -->
+  <div *ngIf="isLoading" class="flex justify-center items-center min-h-screen gap-2">
+    <i class="fas fa-spinner fa-spin text-2xl text-blue-500"></i>
+    <p class="text-gray-500 dark:text-gray-400">Loading posts...</p>
+  </div>
+
+  <!-- Posts -->
+  <div *ngIf="!isLoading" class="space-y-6">
+    <div *ngIf="posts.length === 0" class="text-center text-gray-500 dark:text-gray-400">
+      No public posts available.
+    </div>
+
+    <div *ngFor="let post of posts" class="bg-white dark:bg-neutral-800 rounded-xl shadow-md p-4 border border-gray-200 dark:border-neutral-700">
+
+      <!-- Post Header -->
+      <div class="flex items-center justify-between px-2 gap-3 mb-3 cursor-pointer">
+        <div class="flex items-center gap-3"  [routerLink]="['/user_profile', post.authorId._id]">
+          <img [src]="post.authorId.profileImage" class="w-12 h-12 rounded-full object-cover">
+          <div class="pe-6">
+            <h4 class="font-semibold dark:text-white">{{ post.authorId.name }}</h4>
+            <p class="text-xs text-gray-500 dark:text-gray-400">{{ post.createdAt | date:'medium' }}</p>
+          </div>
+          <p *ngIf="post.visibility === 'public'" class="text-xs text-blue-600 dark:text-white bg-blue-300/80  p-1 rounded-sm">{{post.visibility}}</p>
+          <p *ngIf="post.visibility === 'friends'" class="text-xs text-green-600 dark:text-white bg-green-300/80  p-1 rounded-sm">{{post.visibility}}</p>
+        </div>
+        <!-- Dropdown Menu -->
+        <div class="relative" (click)="post.showMenu = !post.showMenu">
+          <i class="fa-solid fa-ellipsis-h text-gray-500 cursor-pointer hover:text-gray-700"></i>
+          <div *ngIf="post.showMenu"
+            class="absolute right-0 mt-2 w-32 bg-white dark:bg-neutral-700 rounded-lg shadow-lg py-2 text-sm z-50">
+            <button (click)="deletePost(post._id)" class="block w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-neutral-600 text-red-500">
+              <i class="fa-solid fa-trash mr-2"></i> Delete
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Post Content -->
+      <p class="dark:text-gray-200 mb-2" dir="auto">{{ post.content }}</p>
+      <img *ngIf="post.images?.length" [src]="post.images[0]" class="w-full max-h-96 rounded-lg object-fill mb-2">
+
+      <!-- Post Info -->
+      <div class="flex justify-between text-sm text-gray-500 dark:text-gray-400 pt-2 mt-2">
+        <span class="flex items-center gap-1 cursor-pointer"
+              (click)="goToReactions(post._id)">
+
+          <!-- Show multiple reaction icons dynamically -->
+          <ng-container *ngFor="let reaction of getUniqueReactions(post.likes) | slice:0:3">
+            <i [ngClass]="getReactionIcon(reaction)"
+              class="text-lg -ml-1"></i>
+          </ng-container>
+          {{ post.likes.length }} Reactions
+        </span>
+        <span class="flex items-center gap-1 cursor-pointer" [routerLink]="['/view_comments', post._id]">
+          <i class="fas fa-comment text-green-500"></i>
+          {{ post.comments?.length || 0 }} Comments
+        </span>
+      </div>
+
+      <!-- Actions (like, comment) -->
+      <div class="flex justify-around border-t border-gray-200 dark:border-neutral-700 mt-3 pt-2">
+        <!-- Reaction Button -->
+        <div class="relative">
+          <button class="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-blue-500"
+                  (click)="post.showReactions = !post.showReactions">
+            <ng-container [ngSwitch]="post.userReaction?.type">
+              <i *ngSwitchCase="'like'" class="fa-solid fa-thumbs-up text-blue-500"></i>
+              <i *ngSwitchCase="'love'" class="fa-solid fa-heart text-red-500"></i>
+              <i *ngSwitchCase="'haha'" class="fa-solid fa-face-laugh-squint text-yellow-500"></i>
+              <i *ngSwitchCase="'wow'" class="fa-solid fa-face-surprise text-yellow-400"></i>
+              <i *ngSwitchCase="'sad'" class="fa-solid fa-face-sad-tear text-blue-400"></i>
+              <i *ngSwitchCase="'angry'" class="fa-solid fa-face-angry text-red-600"></i>
+              <i *ngSwitchDefault class="fa-regular fa-thumbs-up"></i>
+            </ng-container>
+            {{ post.userReaction?.type || 'Like' }}
+          </button>
+
+          <!-- Reaction Options -->
+          <div *ngIf="post.showReactions" class="absolute bottom-full left-0 mb-2 flex bg-white dark:bg-neutral-700 rounded-full shadow-lg p-2 space-x-2 z-50">
+            <button (click)="chooseReaction(post,'like')" class="hover:scale-125 transition"><i class="fa-solid fa-thumbs-up text-blue-500 text-xl"></i></button>
+            <button (click)="chooseReaction(post,'love')" class="hover:scale-125 transition"><i class="fa-solid fa-heart text-red-500 text-xl"></i></button>
+            <button (click)="chooseReaction(post,'haha')" class="hover:scale-125 transition"><i class="fa-solid fa-face-laugh-squint text-yellow-500 text-xl"></i></button>
+            <button (click)="chooseReaction(post,'wow')" class="hover:scale-125 transition"><i class="fa-solid fa-face-surprise text-yellow-400 text-xl"></i></button>
+            <button (click)="chooseReaction(post,'sad')" class="hover:scale-125 transition"><i class="fa-solid fa-face-sad-tear text-blue-400 text-xl"></i></button>
+            <button (click)="chooseReaction(post,'angry')" class="hover:scale-125 transition"><i class="fa-solid fa-face-angry text-red-600 text-xl"></i></button>
+          </div>
+        </div>
+
+        <!-- Comment & Share -->
+        <button class="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-green-500" [routerLink]="['/view_comments', post._id]">
+          <i class="fas fa-comment"></i> Comment
+        </button>
+        <button class="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-red-500">
+          <i class="fas fa-share"></i> Share
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+

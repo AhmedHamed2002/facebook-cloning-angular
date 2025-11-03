@@ -1,0 +1,229 @@
+<div class="min-h-screen bg-gray-100 dark:bg-neutral-900 py-6 px-8 md:px-28" *ngIf="!isLoading">
+
+  <!-- Cover + Profile Image -->
+  <div class="relative bg-gray-300 dark:bg-neutral-700 h-56 rounded-xl">
+    <img [src]="profile?.backgroundImage"
+         alt="Cover" class="w-full h-full object-cover">
+
+    <div class="absolute z-40 -bottom-14 left-6">
+      <img [src]="profile?.profileImage"
+           class="w-28 h-28 rounded-full border-4 border-white dark:border-neutral-800 shadow-lg object-cover">
+    </div>
+  </div>
+
+  <!-- Name + Info -->
+  <div class="mt-20 px-6 flex items-center justify-between flex-wrap">
+    <div>
+      <h2 class="text-xl md:text-2xl font-bold dark:text-white flex items-center space-x-1">
+        <span>{{ profile?.name }}</span>
+        <span *ngIf="profile?.role === 'admin'" class="bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 p-1 rounded-full text-sm font-semibold flex items-center gap-1">
+          <i class="fa-solid fa-circle-check"></i> Admin
+        </span>
+      </h2>
+
+      <p class="text-sm md:text-base text-gray-600 dark:text-gray-300 mt-1 flex items-center gap-2">
+        <i class="fa-solid fa-briefcase text-gray-500"></i>
+        {{ profile?.bio || 'No bio available' }}
+      </p>
+
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-2">
+        <i class="fa-solid fa-location-dot text-red-500"></i>
+        {{ profile?.city }} • {{ profile?.address }}
+      </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm text-gray-600 dark:text-gray-400 mt-3">
+          <p *ngIf="profile?.email">
+            <i class="fas fa-envelope mr-1 text-blue-400"></i>
+            {{ profile.email }}
+          </p>
+          <p *ngIf="profile?.phone">
+            <i class="fas fa-phone mr-1 text-green-500"></i>
+            {{ profile.phone }}
+          </p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm text-gray-600 dark:text-gray-400 mt-3">
+          <p><i class="fas fa-birthday-cake mr-1 text-pink-500"></i> {{ profile.birthday | date:'yyyy-MM-dd'}}</p>
+          <p><i class="fas fa-user mr-1 text-yellow-500"></i> Age: {{ profile.age }}</p>
+          <p><i class="fas fa-venus-mars mr-1 text-blue-400"></i> {{ profile.gender}}</p>
+      </div>
+
+      <!-- Friends preview -->
+      <div class="flex items-center mt-4 space-x-2">
+        <ng-container *ngFor="let friend of profile?.friends.slice(0, 6)">
+          <img
+            [src]="friend.profileImage || 'assets/default-avatar.png'"
+            class="w-10 h-10 rounded-full border-2 border-white dark:border-neutral-800 shadow object-cover cursor-pointer"
+            (click)="goToFriendProfile(friend._id)"
+            [title]="friend.name"
+          >
+        </ng-container>
+        <span class="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-1 cursor-pointer" (click)="goToAllFriends()">
+          <i class="fa-solid fa-user-friends text-indigo-500"></i>
+          {{ profile?.friends.length }} friends
+        </span>
+      </div>
+    </div>
+
+    <!-- Edit Profile Button -->
+    <div>
+      <button routerLink="/settings"
+              class="px-4 py-2 mt-3 lg:mt-0 rounded-full border border-gray-300 dark:border-neutral-600 hover:bg-blue-500/80 hover:text-white dark:hover:bg-neutral-700 text-sm font-semibold text-gray-700 dark:text-gray-200 transition flex items-center gap-2">
+        <i class="fa-solid fa-pen"></i> Edit Profile
+      </button>
+    </div>
+  </div>
+
+  <hr class="my-6 border-gray-300 dark:border-neutral-700">
+
+  <!-- Create Post -->
+  <div class="bg-white dark:bg-neutral-800 rounded-xl shadow p-4 mb-6">
+    <div class="flex items-center space-x-3 mb-3">
+      <img [src]="profile?.profileImage"
+          class="w-10 h-10 rounded-full object-cover">
+      <input type="text"
+            placeholder="What's on your mind, {{ profile?.name }}?"
+            class="flex-1 px-4 py-2 rounded-full bg-gray-100 dark:bg-neutral-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            (click)="goToAddPost()">
+    </div>
+    <div class="flex justify-between text-gray-600 dark:text-gray-300 text-sm border-t pt-8">
+      <button class="flex items-center gap-2 hover:text-green-600 transition" (click)="goToAddPost()">
+        <i class="fa-solid fa-image"></i><span class="hidden md:block">Photo/Video</span>
+      </button>
+      <button class="flex items-center gap-2 hover:text-indigo-600 transition">
+        <i class="fa-solid fa-user-tag"></i> <span class="hidden md:block">Tag Friends</span>
+      </button>
+      <button class="flex items-center gap-2 hover:text-orange-600 transition">
+        <i class="fa-solid fa-face-smile"></i><span class="hidden md:block">Feeling/Activity</span>
+      </button>
+    </div>
+  </div>
+
+
+  <!-- Posts -->
+  <div class="space-y-4">
+    <div *ngFor="let post of posts" class="bg-white dark:bg-neutral-800 rounded-xl shadow p-4 relative">
+
+      <!-- Post Header -->
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center space-x-3">
+          <img [src]="profile?.profileImage"
+               class="w-10 h-10 rounded-full object-cover">
+          <div class="pe-6">
+            <h4 class="font-semibold dark:text-white">{{ profile?.name }}</h4>
+            <p class="text-xs text-gray-500">{{ post.createdAt | date:'medium' }}</p>
+          </div>
+          <p *ngIf="post.visibility === 'public'" class="text-xs text-blue-600 dark:text-white bg-blue-300/80 p-1 rounded-sm">{{post.visibility}}</p>
+          <p *ngIf="post.visibility === 'friends'" class="text-xs text-green-600 dark:text-white bg-green-300/80  p-1 rounded-sm">{{post.visibility}}</p>
+          <p *ngIf="post.visibility === 'private'" class="text-xs text-yellow-600 dark:text-white bg-yellow-300/80  p-1 rounded-sm">{{post.visibility}}</p>
+        </div>
+
+        <!-- Dropdown Menu -->
+        <div class="relative" (click)="post.showMenu = !post.showMenu">
+          <i class="fa-solid fa-ellipsis-h text-gray-500 cursor-pointer hover:text-gray-700"></i>
+          <div *ngIf="post.showMenu"
+              class="absolute right-0 mt-2 w-32 bg-white dark:bg-neutral-700 rounded-lg shadow-lg py-2 text-sm z-50">
+            <button (click)="goToEditPost(post._id)"  class="block w-full px-4 py-2 text-left text-neutral-600 dark:text-white hover:bg-gray-100 dark:hover:bg-neutral-600">
+              <i class="fa-solid fa-pen mr-2"></i> Edit Post
+            </button>
+            <button (click)="deletePost(post._id)" class="block w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-neutral-600 text-red-500">
+              <i class="fa-solid fa-trash mr-2"></i> Delete
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- Content -->
+      <p class="mb-2 dark:text-gray-200" dir="auto">{{ post.content }}</p>
+      <img *ngIf="post.images" [src]="post.images[0]" class="w-full max-h-96 rounded-lg mb-2 object-fill" />
+
+      <!-- Likes & Comments -->
+      <div class="flex justify-between text-sm text-gray-500 dark:text-gray-400 pt-2 mt-2">
+        <!-- Reactions Preview -->
+        <span class="flex items-center gap-1 cursor-pointer"
+              (click)="goToReactions(post._id)">
+
+          <!-- Show multiple reaction icons dynamically -->
+          <ng-container *ngFor="let reaction of getUniqueReactions(post.likes) | slice:0:3">
+            <i [ngClass]="getReactionIcon(reaction)"
+              class="text-lg -ml-1"></i>
+          </ng-container>
+
+          {{ post.likes.length }} Reactions
+        </span>
+
+        <!-- Comments -->
+        <span class="flex items-center gap-1 cursor-pointer" [routerLink]="['/view_comments', post._id]">
+          <i class="fa-solid fa-comment text-gray-500"></i>
+          {{ post.comments.length }} Comments
+        </span>
+      </div>
+
+
+    <!-- Actions -->
+    <div class="flex justify-around mt-3 border-t pt-2 text-gray-600 dark:text-gray-300 text-sm relative">
+
+      <!-- Like Button with Reactions -->
+      <div class="relative">
+        <!-- Reaction Button -->
+      <div class="relative">
+        <button class="flex items-center gap-2 hover:text-blue-600 transition"
+                (click)="post.showReactions = !post.showReactions">
+
+          <ng-container [ngSwitch]="post.userReaction?.type">
+            <i *ngSwitchCase="'like'" class="fa-solid fa-thumbs-up text-blue-500"></i>
+            <i *ngSwitchCase="'love'" class="fa-solid fa-heart text-red-500"></i>
+            <i *ngSwitchCase="'haha'" class="fa-solid fa-face-laugh-squint text-yellow-500"></i>
+            <i *ngSwitchCase="'wow'" class="fa-solid fa-face-surprise text-yellow-400"></i>
+            <i *ngSwitchCase="'sad'" class="fa-solid fa-face-sad-tear text-blue-400"></i>
+            <i *ngSwitchCase="'angry'" class="fa-solid fa-face-angry text-red-600"></i>
+            <i *ngSwitchDefault class="fa-regular fa-thumbs-up"></i>
+          </ng-container>
+
+          {{ post.userReaction ? post.userReaction.type : 'Like' }}
+        </button>
+
+        <!-- Reaction Options -->
+        <div *ngIf="post.showReactions"
+            class="absolute bottom-full left-0 mb-2 flex bg-white dark:bg-neutral-700 rounded-full shadow-lg p-2 space-x-2 z-50">
+          <button (click)="chooseReaction(post, 'like')" class="hover:scale-125 transition">
+            <i class="fa-solid fa-thumbs-up text-blue-500 text-xl"></i>
+          </button>
+          <button (click)="chooseReaction(post, 'love')" class="hover:scale-125 transition">
+            <i class="fa-solid fa-heart text-red-500 text-xl"></i>
+          </button>
+          <button (click)="chooseReaction(post, 'haha')" class="hover:scale-125 transition">
+            <i class="fa-solid fa-face-laugh-squint text-yellow-500 text-xl"></i>
+          </button>
+          <button (click)="chooseReaction(post, 'wow')" class="hover:scale-125 transition">
+            <i class="fa-solid fa-face-surprise text-yellow-400 text-xl"></i>
+          </button>
+          <button (click)="chooseReaction(post, 'sad')" class="hover:scale-125 transition">
+            <i class="fa-solid fa-face-sad-tear text-blue-400 text-xl"></i>
+          </button>
+          <button (click)="chooseReaction(post, 'angry')" class="hover:scale-125 transition">
+            <i class="fa-solid fa-face-angry text-red-600 text-xl"></i>
+          </button>
+        </div>
+      </div>
+
+      </div>
+
+      <!-- Comment -->
+      <button class="flex items-center gap-2 hover:text-green-600 transition"  [routerLink]="['/view_comments', post._id]">
+        <i class="fa-solid fa-comment"></i> Comment
+      </button>
+
+      <!-- Share -->
+      <button class="flex items-center gap-2 hover:text-indigo-600 transition">
+        <i class="fa-solid fa-share"></i> Share
+      </button>
+    </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Loader -->
+<div *ngIf="isLoading" class="flex justify-center items-center min-h-screen gap-2">
+  <i class="fa-solid fa-spinner fa-spin text-2xl text-blue-500"></i>
+  <p class="text-gray-500 dark:text-gray-400">Loading profile...</p>
+</div>

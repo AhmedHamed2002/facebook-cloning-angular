@@ -1,0 +1,75 @@
+<div class="flex px-5 flex-col md:flex-row items-center justify-center min-h-screen bg-gray-100 dark:bg-neutral-900">
+
+  <!-- Left Side: Branding -->
+  <div class="text-center md:text-left mb-8 md:mb-0 md:mr-12">
+    <h1 class="text-4xl md:text-5xl font-extrabold text-blue-600">facebook</h1>
+    <p class="mt-3 text-lg text-gray-700 dark:text-gray-300">
+      Connect with friends and the world around you on Facebook.
+    </p>
+  </div>
+
+  <!-- Login Card -->
+  <div
+    class="bg-white dark:bg-neutral-800 p-6 rounded-lg shadow-md w-full max-w-sm border border-gray-200 dark:border-gray-700">
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-4">
+
+      <!-- Email -->
+      <div>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          placeholder="Email address"
+          class="w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2
+                 focus:ring-blue-500 focus:outline-none px-4 py-3 bg-transparent text-gray-900 dark:text-gray-100"
+        />
+        <p class="text-red-500 text-sm mt-1" *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+          Enter a valid email
+        </p>
+      </div>
+
+      <!-- Password -->
+      <div>
+        <input
+          type="password"
+          id="password"
+          formControlName="password"
+          placeholder="Password"
+          class="w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2
+                 focus:ring-blue-500 focus:outline-none px-4 py-3 bg-transparent text-gray-900 dark:text-gray-100"
+        />
+        <p class="text-red-500 text-sm mt-1" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+          Password is required
+        </p>
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        [disabled]="loading || loginForm.invalid"
+        class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4
+               focus:outline-none focus:ring-blue-300 font-bold rounded-lg text-lg px-5 py-2.5 text-center
+               disabled:bg-blue-400 disabled:cursor-not-allowed">
+        {{ loading ? 'Logging in...' : 'Log In' }}
+      </button>
+
+      <!-- Forgot password -->
+      <div class="text-center mt-2">
+        <a routerLink="/forgot-password" class="text-blue-600 hover:underline text-sm">
+          Forgotten password?
+        </a>
+      </div>
+
+      <hr class="my-4 border-gray-300 dark:border-gray-600" />
+
+      <!-- Create account -->
+      <div class="text-center">
+        <a routerLink="/register"
+          class="bg-green-500 hover:bg-green-600 text-white font-bold px-5 py-2.5 rounded-lg">
+          Create New Account
+        </a>
+      </div>
+    </form>
+  </div>
+</div>

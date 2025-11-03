@@ -1,0 +1,81 @@
+<div class="min-h-screen flex justify-center items-center bg-gray-100 dark:bg-neutral-900 p-6">
+  <div
+    class="bg-white dark:bg-neutral-800 rounded-3xl shadow-xl w-full max-w-2xl p-6 border border-gray-200 dark:border-neutral-700
+           hover:shadow-2xl transition-shadow duration-300"
+  >
+    <!-- Header -->
+    <h2 class="text-2xl font-bold mb-6 dark:text-white flex items-center gap-3">
+      <i class="fas fa-edit text-blue-500"></i> Edit Post
+    </h2>
+
+    <!-- Loader -->
+    <div *ngIf="isLoading" class="flex flex-col justify-center items-center py-10 gap-3">
+      <i class="fas fa-spinner fa-spin text-3xl text-blue-500"></i>
+      <p class="text-gray-500 dark:text-gray-400 text-lg">Loading post data...</p>
+    </div>
+
+    <!-- Form -->
+    <form *ngIf="!isLoading" [formGroup]="postForm" (ngSubmit)="onSubmit()" class="space-y-5">
+
+      <!-- Content -->
+      <div class="relative">
+        <textarea
+          formControlName="content"
+          rows="4"
+          placeholder="Update your post..."
+          class="w-full p-4 rounded-xl border border-gray-300 dark:border-neutral-600
+                 dark:bg-neutral-700 dark:text-white focus:ring-2 focus:ring-blue-500
+                 focus:border-blue-500 outline-none resize-none shadow-sm
+                 placeholder-gray-400 dark:placeholder-gray-300 transition-all duration-200"
+        ></textarea>
+        <i class="fas fa-pencil-alt absolute top-3 right-3 text-gray-400"></i>
+      </div>
+
+      <!-- Image Preview -->
+      <div *ngIf="previewImage" class="relative mt-2">
+        <img [src]="previewImage" class="rounded-xl shadow-md max-h-64 object-cover w-full border border-gray-300 dark:border-neutral-600" />
+        <button
+          type="button"
+          (click)="previewImage = null; postForm.patchValue({images: null})"
+          class="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full hover:bg-red-700 transition"
+        >
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- Upload New Image -->
+      <label
+        class="flex items-center gap-3 cursor-pointer text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300
+               font-medium transition-colors duration-200"
+      >
+        <i class="fas fa-image"></i>
+        <span>Add / Change Image</span>
+        <input type="file" hidden (change)="onFileSelected($event)" />
+      </label>
+
+      <!-- Visibility -->
+      <select
+        formControlName="visibility"
+        class="w-full p-3 rounded-xl border border-gray-300 dark:border-neutral-600
+               dark:bg-neutral-700 dark:text-white focus:ring-2 focus:ring-blue-500
+               focus:border-blue-500 transition duration-200"
+      >
+        <option value="public"><i class="fas fa-globe"></i> Public</option>
+        <option value="friends"><i class="fas fa-user-friends"></i> Friends only</option>
+        <option value="private"><i class="fas fa-lock"></i> Private</option>
+      </select>
+
+      <!-- Submit -->
+      <div class="text-right">
+        <button
+          type="submit"
+          [disabled]="postForm.invalid"
+          class="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-full shadow-lg
+                 hover:from-blue-600 hover:to-blue-700 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-300 flex items-center gap-2"
+        >
+          <i class="fas fa-save"></i> Save Changes
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

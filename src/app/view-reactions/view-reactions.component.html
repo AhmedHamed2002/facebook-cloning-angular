@@ -1,0 +1,47 @@
+<div class="min-h-screen bg-gray-100 dark:bg-neutral-900 py-6 px-6 md:px-20">
+
+  <!-- Header -->
+  <div class="bg-white dark:bg-neutral-800 rounded-xl shadow p-4 mb-6 flex items-center justify-between">
+    <h2 class="text-xl font-bold dark:text-white">Reactions</h2>
+    <button [routerLink]="['/user_profile', authorId]"
+            class="px-3 py-1 rounded-full bg-gray-200 dark:bg-neutral-700 dark:text-neutral-300 text-sm hover:bg-gray-300 dark:hover:bg-neutral-600">
+      Back
+    </button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="flex gap-3 border-b border-gray-300 dark:border-neutral-700 mb-4 overflow-x-auto">
+    <button *ngFor="let tab of tabs"
+            (click)="activeTab = tab.key"
+            class="px-4 py-2 text-sm font-semibold rounded-t-lg transition"
+            [ngClass]="activeTab === tab.key
+              ? 'bg-blue-500 text-white'
+              : 'bg-gray-100 dark:bg-neutral-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-neutral-600'">
+      <i [ngClass]="tab.icon" class="mr-1"></i> {{ tab.label }}
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="flex justify-center py-10 text-gray-500 dark:text-gray-300">
+    <i class="fa-solid fa-spinner fa-spin mr-2"></i> Loading reactions...
+  </div>
+
+  <!-- Users List -->
+  <div *ngIf="!loading" class="bg-white dark:bg-neutral-800 rounded-xl shadow p-4">
+    <ng-container *ngFor="let user of filteredReactions">
+      <div class="flex items-center gap-3 py-2 border-b border-gray-200 dark:border-neutral-700">
+        <img [src]="user.profileImage || 'assets/default-avatar.png'"
+             class="w-10 h-10 rounded-full object-cover cursor-pointer"
+             (click)="goToProfile(user._id)">
+        <span class="dark:text-white cursor-pointer hover:underline"
+              (click)="goToProfile(user._id)">
+          {{ user.name }}
+        </span>
+        <i [ngClass]="getReactionIcon(user.type)" class="ml-auto text-lg"></i>
+      </div>
+    </ng-container>
+    <p *ngIf="filteredReactions.length === 0" class="text-gray-500 dark:text-gray-400 text-sm text-center py-4">
+      No reactions yet.
+    </p>
+  </div>
+</div>
